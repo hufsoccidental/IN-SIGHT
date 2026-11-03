@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>서냥이 진로상담소 · IN-S!GHT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Gothic+A1:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --desk:#e3e3e3; --ghost:#b4b4b4;
+    --face:#d4d0c8; --hi:#ffffff; --lo:#808080; --dk:#0a0a0a;
+    --title1:#0a246a; --title2:#a6caf0;
+    --catc:#b4209c; --mec:#1b3aa6;
+    --ink:#111;
+    --kr:Gulim,'굴림',Dotum,'돋움','Gothic A1',sans-serif;
+    --px:'VT323', ui-monospace, monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{font-family:var(--kr);font-size:12px;color:var(--ink);background:var(--desk);overflow:hidden}
+  .pix{image-rendering:pixelated;image-rendering:crisp-edges}
+
+  /* desktop */
+  .wall{position:fixed;inset:0;overflow:hidden;pointer-events:none}
+  .wall span{position:absolute;left:1%;white-space:nowrap;font-family:'Archivo Black',sans-serif;font-size:clamp(70px,16vw,190px);color:var(--ghost);opacity:.55;line-height:1}
+  .wall span:nth-child(1){top:-2%;transform:rotate(-3deg)}
+  .wall span:nth-child(2){top:32%;transform:rotate(2deg);opacity:.35}
+  .wall span:nth-child(3){top:66%;transform:rotate(-2deg)}
+  .icons{position:fixed;top:14px;left:12px;display:flex;flex-direction:column;gap:18px;z-index:1}
+  .icon{width:86px;text-align:center;cursor:pointer;background:none;border:0;padding:4px;font:12px var(--kr);color:#000}
+  .icon img,.icon .img{width:40px;height:40px;margin:0 auto 4px;display:block}
+  .icon .lbl{display:inline-block;padding:1px 3px;line-height:1.3}
+  .icon:focus .lbl,.icon:hover .lbl{background:var(--title1);color:#fff;outline:1px dotted #fff}
+
+  /* window chrome */
+  .win{position:fixed;background:var(--face);display:flex;flex-direction:column;z-index:5;
+    border:2px solid;border-color:#dfdfdf var(--dk) var(--dk) #dfdfdf;
+    box-shadow:inset 1px 1px var(--hi),inset -1px -1px var(--lo),5px 7px 0 rgba(0,0,0,.18)}
+  .win[hidden]{display:none}
+  .bar{display:flex;align-items:center;gap:5px;padding:2px 2px 2px 4px;flex:none;user-select:none;
+    background:linear-gradient(90deg,var(--title1),var(--title2));color:#fff;font-weight:700;font-size:12px}
+  .bar .t{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bar .mini{width:16px;height:16px;flex:none;background:#fff;border:1px solid #000}
+  .ctl{display:flex;gap:2px}
+  .ctl button{width:18px;height:16px;padding:0;background:var(--face);font:700 11px/1 var(--kr);color:#000;cursor:pointer;
+    border:1px solid;border-color:var(--hi) var(--dk) var(--dk) var(--hi);box-shadow:inset -1px -1px var(--lo)}
+  .ctl button:active{border-color:var(--dk) var(--hi) var(--hi) var(--dk)}
+  .sunken{background:#fff;border:2px solid;border-color:var(--lo) var(--hi) var(--hi) var(--lo);box-shadow:inset 1px 1px var(--dk)}
+  .btn{font:12px var(--kr);color:#000;background:var(--face);cursor:pointer;padding:4px 10px;
+    border:2px solid;border-color:var(--hi) var(--dk) var(--dk) var(--hi);box-shadow:inset -1px -1px var(--lo)}
+  .btn:active{border-color:var(--dk) var(--hi) var(--hi) var(--dk);box-shadow:inset 1px 1px var(--lo)}
+  .btn[disabled]{color:var(--lo);text-shadow:1px 1px #fff;cursor:default}
+  .btn:focus-visible{outline:1px dotted #000;outline-offset:-4px}
+
+  /* boot */
+  #boot{left:50%;top:50%;transform:translate(-50%,-50%);width:min(330px,92vw)}
+  #boot .body{padding:14px;display:flex;gap:12px;align-items:center;line-height:1.6}
+  .progress{height:20px;margin:0 14px 14px;padding:2px;display:flex;gap:2px;overflow:hidden}
+  .progress i{width:10px;flex:none;background:var(--title1)}
+
+  /* ===== messenger ===== */
+  #chat{left:50%;top:50%;transform:translate(-50%,-50%);width:min(520px,97vw);height:min(700px,calc(100dvh - 56px))}
+  .tools{display:flex;align-items:center;gap:6px;padding:4px 6px;flex:none;border-bottom:1px solid var(--lo);box-shadow:0 1px #fff}
+  .block{display:flex;align-items:center;gap:3px;font-weight:700;white-space:nowrap}
+  .block .no{width:15px;height:15px;border-radius:50%;border:2px solid #d00;position:relative}
+  .block .no::after{content:"";position:absolute;left:-1px;right:-1px;top:4px;height:2px;background:#d00;transform:rotate(-45deg)}
+  .search{flex:1;min-width:0;height:20px;padding:1px 4px;font:12px var(--kr);color:var(--lo);display:flex;align-items:center}
+  .tools .btn{padding:1px 6px}
+  .logo{font:italic 700 13px 'Archivo Black',sans-serif;letter-spacing:-.02em;white-space:nowrap}
+  .logo b{color:#e0281f}.logo i{color:#1aa33a;font-style:inherit}.logo u{color:#1b5fd6;text-decoration:none}
+
+  .main{flex:1;min-height:0;display:grid;grid-template-columns:1fr 104px;grid-template-rows:1fr auto;gap:6px;padding:6px}
+  .talk{display:flex;flex-direction:column;min-height:0;min-width:0}
+  .who-line{padding:3px 4px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:none}
+  .notice{display:flex;align-items:center;gap:5px;padding:3px 4px;background:#ffffe1;border:1px solid var(--lo);margin-bottom:4px;flex:none;line-height:1.35}
+  .notice .i{width:14px;height:14px;flex:none;border-radius:50%;background:#1b5fd6;color:#fff;font:700 11px/14px Georgia,serif;text-align:center}
+  .notice .arr{margin-left:auto;display:flex;flex-direction:column;gap:1px;flex:none}
+  .notice .arr span{width:13px;height:9px;background:var(--face);border:1px solid;border-color:var(--hi) var(--dk) var(--dk) var(--hi);font-size:6px;line-height:7px;text-align:center}
+  .log{flex:1;min-height:0;overflow-y:auto;padding:6px 7px;line-height:1.55;font-size:12.5px}
+  .log::-webkit-scrollbar{width:16px}
+  .log::-webkit-scrollbar-track{background:repeating-conic-gradient(#d4d0c8 0 25%,#fff 0 50%) 0 0/2px 2px}
+  .log::-webkit-scrollbar-thumb{background:var(--face);border:2px solid;border-color:var(--hi) var(--dk) var(--dk) var(--hi)}
+  .stamp{color:var(--lo);margin:0 0 6px}
+  .line{margin:0 0 4px}
+  .line .nm{color:#222}
+  .line .tx{padding-left:12px;white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere}
+  .line.cat .tx{color:var(--catc)}
+  .line.me .tx{color:var(--mec)}
+  .typing{color:var(--lo);font-size:11.5px;padding:2px 0 4px}
+
+  .pic{display:flex;flex-direction:column;align-items:center;gap:3px;position:relative}
+  .pic .frame{width:100%;aspect-ratio:30/36;display:flex;align-items:flex-end;justify-content:center;padding:6px 4px 2px;background:linear-gradient(#fff,#eef3fa)}
+  .pic .frame img{width:86%;height:auto}
+  .pic .cap{font-size:11px;text-align:center;line-height:1.25;word-break:keep-all}
+  .pic .tab{position:absolute;right:-6px;top:10px;width:7px;height:18px;background:var(--face);border:1px solid var(--lo);border-left:0}
+
+  .write{display:flex;flex-direction:column;gap:3px;min-width:0}
+  .fmt{display:flex;align-items:center;gap:4px;white-space:nowrap;overflow:hidden}
+  .dd{display:inline-flex;align-items:center;height:19px;padding:0 0 0 4px;gap:4px}
+  .dd::after{content:"▼";font-size:7px;width:14px;height:15px;display:grid;place-items:center;background:var(--face);border:1px solid;border-color:var(--hi) var(--dk) var(--dk) var(--hi)}
+  .fmt .g{font-weight:700;padding:0 2px}
+  .fmt .sep{width:1px;height:16px;background:var(--lo);box-shadow:1px 0 #fff}
+  .inrow{display:flex;gap:5px;align-items:stretch}
+  .box{flex:1;min-width:0;min-height:76px;max-height:168px;overflow-y:auto;padding:2px}
+  .opt{display:block;width:100%;text-align:left;font:12.5px/1.45 var(--kr);color:#000;background:none;border:0;padding:4px 5px;cursor:pointer;word-break:keep-all}
+  .opt:hover{background:#e8eef8}
+  .opt[aria-selected="true"]{background:var(--title1);color:#fff;outline:1px dotted #ffd}
+  .box input{width:100%;border:0;outline:0;font:13px var(--kr);padding:5px}
+  .box .ph{color:var(--lo);padding:5px}
+  .send{width:64px;flex:none;font-weight:700;white-space:nowrap;padding:4px 2px}
+
+  .status{display:flex;gap:4px;padding:2px;flex:none}
+  .status span{border:1px solid;border-color:var(--lo) var(--hi) var(--hi) var(--lo);padding:1px 6px;display:flex;align-items:center;gap:4px}
+  .status span:first-child{flex:1}
+
+  /* result cards */
+  .rx{margin:4px 0 8px 12px;padding:8px 9px;line-height:1.5;background:#fffef2;border:1px solid #9a9a9a;box-shadow:2px 2px 0 #c9c9c9}
+  .rx .rank{font-weight:700;color:var(--catc)}
+  .rx h4{margin:2px 0;font-size:14px}
+  .tags{display:flex;flex-wrap:wrap;gap:3px;margin:4px 0}
+  .tag{font-size:11px;padding:0 5px;background:var(--face);border:1px solid;border-color:var(--hi) var(--lo) var(--lo) var(--hi)}
+  .tag.pay{background:#ffe48a}
+  .tag.pick{background:var(--title1);color:#fff}
+  .rx p{margin:3px 0}
+  .rx .why{color:#333}
+  .rx .warn{font-size:11.5px;color:#8a2a00}
+  .rx a{color:#0000ee;font-weight:700}
+  .after{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 4px 12px}
+
+  /* list window */
+  #list{left:50%;top:50%;transform:translate(-50%,-50%);width:min(520px,96vw);height:min(640px,calc(100dvh - 56px));z-index:8}
+  #list .log{margin:4px;font-size:12.5px}
+  .row{padding:7px 3px;border-bottom:1px dotted var(--lo)}
+  .row b{font-size:13.5px}
+  .row .meta{font-size:11.5px;color:#444}
+  .menu{display:flex;gap:12px;padding:3px 8px;flex:none}
+  .menu u{text-decoration:underline}
+
+  /* taskbar */
+  .task{position:fixed;left:0;right:0;bottom:0;height:34px;z-index:9;background:var(--face);border-top:2px solid var(--hi);box-shadow:0 -1px #dfdfdf;display:flex;align-items:center;gap:4px;padding:3px}
+  .start{font:13px 'Archivo Black',sans-serif;display:flex;align-items:center;gap:5px;padding:2px 8px;min-height:26px}
+  .start .bang{display:inline-grid;place-items:center;width:15px;height:15px;background:#000;color:#ffe14d;font-size:11px}
+  .tb{flex:1;min-width:0;display:flex;gap:4px}
+  .tb .btn{min-height:26px;padding:2px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px}
+  .tb .btn.on{border-color:var(--dk) var(--hi) var(--hi) var(--dk);background:repeating-conic-gradient(#d4d0c8 0 25%,#fff 0 50%) 0 0/2px 2px;font-weight:700}
+  .clock{font-family:var(--px);font-size:17px;padding:1px 10px;border:1px solid;border-color:var(--lo) var(--hi) var(--hi) var(--lo)}
+
+  @media (max-width:560px){
+    .icons{display:none}
+    #chat,#list{top:4px;left:1.5vw;transform:none;width:97vw;height:calc(100dvh - 44px)}
+    .main{grid-template-columns:1fr 84px;gap:5px;padding:5px}
+    .logo,.tools .btn{display:none}
+    .fmt .hide-s{display:none}
+    .send{width:52px}
+    .tb .btn{max-width:110px}
+  }
+</style>
+</head>
+<body>
+
+<div class="wall" aria-hidden="true"><span>IN-S!GHT IN-S!GHT</span><span>IN-S!GHT IN-S!GHT</span><span>IN-S!GHT IN-S!GHT</span></div>
+
+<div class="icons">
+  <button class="icon" id="iconChat" type="button"><img class="pix" data-img="head" alt=""><span class="lbl">서냥이_진로상담소.exe</span></button>
+  <button class="icon" id="iconList" type="button"><span class="img" id="folderIcon"></span><span class="lbl">검사목록.txt</span></button>
+</div>
+
+<section class="win" id="boot" role="dialog" aria-label="연결 중">
+  <div class="bar"><img class="mini pix" data-img="head" alt=""><span class="t">서냥이 웹메신저</span></div>
+  <div class="body">
+    <img class="pix" data-img="full" alt="서냥이" style="width:60px;flex:none">
+    <div><b>상담사 서냥이님에게 로그인하는 중...</b><br><span id="bootMsg">서버에 연결하는 중</span></div>
+  </div>
+  <div class="progress sunken" id="prog"></div>
+</section>
+
+<section class="win" id="chat" hidden aria-label="서냥이 진로상담 대화창">
+  <div class="bar">
+    <img class="mini pix" data-img="head" alt="">
+    <span class="t">http://in-sight.spark/상담실 - 서냥이 웹메신저</span>
+    <span class="ctl"><button type="button" aria-label="최소화" data-min="chat">_</button><button type="button" aria-label="최대화">□</button><button type="button" aria-label="처음부터" id="restartX">×</button></span>
+  </div>
+  <div class="tools">
+    <span class="block"><span class="no"></span>차단</span>
+    <span class="search sunken">진로 검색..</span>
+    <button class="btn" type="button" id="openList">검사목록</button>
+    <span class="logo"><b>IN</b>-<i>S!</i><u>GHT</u></span>
+  </div>
+
+  <div class="main">
+    <div class="talk">
+      <div class="who-line sunken">대화 상대: <b>[상담사] 서냥이</b> ♡ 오늘도 진로 고민 접수 중 ♡ (=^･ω･^=)</div>
+      <div class="notice"><span class="i">i</span><span id="noticeTxt">[상담사] 서냥이 님은 다른 학우와 상담 중일 수 있어 답이 조금 늦을 수 있습니다.</span><span class="arr"><span>▲</span><span>▼</span></span></div>
+      <div class="log sunken" id="log" aria-live="polite"></div>
+    </div>
+    <div class="pic">
+      <div class="frame sunken"><img class="pix" data-img="full" alt="상담사 서냥이"></div>
+      <div class="cap">[상담사] 서냥이</div>
+    </div>
+
+    <div class="write">
+      <div class="fmt">
+        <span class="dd sunken">글꼴</span><span class="dd sunken">9</span>
+        <span class="sep"></span><span>☺</span><span class="g" style="text-decoration:underline;color:#c00">A</span>
+        <span class="sep hide-s"></span><span class="g hide-s">B</span><span class="g hide-s" style="font-style:italic">I</span><span class="g hide-s" style="text-decoration:underline">U</span>
+      </div>
+      <div class="inrow">
+        <div class="box sunken" id="box" role="listbox" aria-label="보낼 답장"></div>
+        <button class="btn send" type="button" id="send" disabled>보내기</button>
+      </div>
+    </div>
+    <div class="pic">
+      <div class="frame sunken" style="aspect-ratio:auto;height:100%;min-height:80px;align-items:center;padding:6px"><img class="pix" data-img="me" alt="서양어대학 학생회 SPARK" style="width:92%"></div>
+    </div>
+  </div>
+  <div class="status"><span>✔ <b id="stTxt">완료</b></span><span>🌐 인터넷</span></div>
+</section>
+
+<section class="win" id="list" hidden aria-label="전체 검사 목록">
+  <div class="bar"><span class="mini" id="folderMini" style="background:none;border:0"></span><span class="t">검사목록.txt - 메모장</span><span class="ctl"><button type="button" aria-label="닫기" id="closeList">×</button></span></div>
+  <div class="menu"><span><u>파</u>일</span><span><u>편</u>집</span><span><u>서</u>식</span></div>
+  <div class="log sunken" id="listBody"></div>
+</section>
+
+<div class="task">
+  <button class="btn start" type="button" id="startBtn"><span class="bang">!</span>IN-S!GHT</button>
+  <div class="tb" id="tb"></div>
+  <span class="clock" id="clock">00:00</span>
+</div>
+
+<script>
+const IMG = {head:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAeCAYAAAA7MK6iAAABQElEQVR4Xu2VMY7CMBBFTURLtxUdTaBAVMsN4A6chEPsSfYOIBpK0BaIhjRIFFRIW9Bv0I/4aBg7cTDSIiE/KbLkeP63J+OJMZHI25Kmn/nP4TfHiOfZg1KHmlqvqSe+57NiajIa51m2boRsAKbUKcMyJgiEeV1jbJKZ8pkCyzjdbEw2GBQv6wgQbFKvl1qaxHUiBDyKNEW8T6Mw1t+EJw5Fx2NTumCtVD9rSnw6zlT/By8ztlI9GY2dB66q8JAY5z0+n0838+Nxb7rdoTf7u93KtNud27pW60NeteKeS5GkrD3CEEixKriOcZrSVsxeLfu17Lecd42+GNeGm/LEvcWysmNd2+jdSHQNUIvQhym/y/sjvdYHC05/W3hgzvn3YScrq9Y6aEPZIaHrrGoEoen/9b/qeFgk22lQXCQSCeICqInL2rBmp48AAAAASUVORK5CYII=', full:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAkCAYAAACe0YppAAACAElEQVR4XsWWv0oDQRDG1xDsYmWhKQSbREQCgnaWyStIHsMqD5HKxwi+gmKjnaIQgpA0QorYCILpLIx8SybMzc3+ufU0PziO29zMdzO7+22MWdJonCyeph8L3HHReCqUh3LKPFU5MLi5tkPddmcxmTxupAhDlPK4yAkTCIR4rDA+kjoVEgU54cZwaCatlv0xJgGBj5Tv81ySilYRAorCRREfymGF5ZxQxanIeHyUXLC5Vv9WlAjlUVv9H6xNONfqbrujFuxb4Skx6j6ez99X4rPZq2k2T4PdH48fTL2+v3qvVtvmW83uc56k4rJHCAKezAe9R3ESpxWTV3O/5n5L49o9FKN9cJVXfHB753WspY1m7oRcA5SLIB1qeabvRbw2BC04ObfQwJh6+pCTuVZrDFKQOyTyqqsaQTD976N+jEaOyqgXjEsykM/pvb2KIM8D53lsz1fTsyuSL5zzi+eM3tXlsX3m06K1mcB7+N1bsSvB1t6ZvUiU4xPleIWluRx+vZlRf8fG445n13biaH+FkuaYxItCbUZcknAZFBJ+2dzNaMpnDa3NSRWTWIwoh7c5Slg7h2NFXdWC4B92X7CrIun5slrgNJAUtENGEy1VWJsSl2ipwrLtwOdihVvNPZlXGevVRKF9TLgqwXgpXv2XJFVcBmsTDhoI4Mcjn0PXeAw/+8dEha8aC34AAAAASUVORK5CYII=', me:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADQAAAAOCAYAAABgmT8gAAABH0lEQVR4Xt2U0QnCUAxFbekQ4gh+uoDgDM6j6DydQXABPx1B3ELJg1tievOSCoJ6frQvfUlukqaZKRbr3UM/g9v52Mh/zy7gHXA/LYuv1WE7skW+tD8bU8dhthYJ1JKt2dh9iGG2jJjMO57QIkgbpQK22ixA5p0sXkyPWteGDlkyQZgo3R0Ztykwfxqx18QInQ3oXciMHSsK7slvlHAUI7ILpUO1QJ4TObe2y74fNM0317JIMjBfkXiPUdBMFRiSgF0GFoiMYtQ2mRcb5x2cw0lmRbOuZsWwsZQzLbI2nuw70rysbbvtvLZOHQfpDBurqdiiA513uBSyYJxspyAm8mMrH42lRxtVO7O+PdhieDfRiE/5LR2Kvqef4W+EfBNPb8zUxDsLWjEAAAAASUVORK5CYII='};
+document.querySelectorAll('[data-img]').forEach(el=> el.src = IMG[el.dataset.img]);
+const folderSVG = '<svg viewBox="0 0 16 13" width="100%" height="100%" shape-rendering="crispEdges"><path d="M1 3h5l1-1h1v1h7v9H1z" fill="#a07a1c"/><path d="M2 4h12v7H2z" fill="#ffd84a"/><path d="M2 5h12v6H2z" fill="#e8b84a"/></svg>';
+document.getElementById('folderIcon').innerHTML = folderSVG;
+document.getElementById('folderMini').innerHTML = folderSVG;
+
+/* ===== 검사 데이터 & 질문 (정책기획국 직접 체험 정리본 기반) ===== */
+const W24 = 'https://www.work24.go.kr/wk/r/c/1000/jobPsyExamList.do';
+const TESTS = {
+  values:{name:'성인용 직업가치관검사', org:'고용24', cost:'무료', time:'약 10분',
+    one:'직업을 고를 때 내가 무엇을 중요하게 여기는지 찾아주는 검사',
+    detail:'사회적 공헌·성취·경제적 보상·일과 삶의 균형 등 9가지 가치로 나의 우선순위를 정리해줘요. 희망 직업과 내 가치관을 직접 비교해 볼 수도 있어요.',
+    link:W24},
+  prefS:{name:'직업선호도검사 S형', org:'고용24', cost:'무료', time:'약 25분 (체감 15분)',
+    one:'나의 흥미 유형과 그에 맞는 직업을 알려주는 검사',
+    detail:'흥미 유형별 설명이 자세하고, 추천 직업에서 다른 직업 탐색으로 이어지는 루트까지 알려줘요.',
+    link:W24},
+  prefL:{name:'직업선호도검사 L형', org:'고용24', cost:'무료', time:'약 50분',
+    one:'성격·생활사·흥미를 한 번에 깊게 보는 정밀 검사',
+    detail:'약 400문항으로 성격·생활사·직업흥미 세 영역을 나눠 분석해요. 내 성향이 실제 직업 환경과 어떻게 맞는지 종합적으로 볼 수 있어요.',
+    link:W24},
+  ai:{name:'AI 직업선호도검사', org:'고용24', cost:'무료', time:null,
+    one:'좋아하는 활동과 일하는 방식으로 흥미 유형을 분석하는 검사',
+    detail:'현실·탐구·예술·사회·진취·관습 6가지 유형으로 나누고, 관련 직업과 주요 업무까지 바로 보여줘요.',
+    warn:'흥미 중심이라 실제 능력이나 준비 정도는 반영하지 않아요.',
+    link:W24},
+  apt:{name:'성인용 직업적성검사', org:'고용24', cost:'무료', time:'약 80분 (체감 65분)', pick:true,
+    one:'언어력·수리력·추리력 등 나의 강점 능력을 찾는 검사',
+    detail:'강점 적성에 맞는 직업을 추천해주고, 희망 직업 재직자 평균과 내 점수를 비교해 볼 수 있어요.',
+    link:W24},
+  uniReady:{name:'대학생 진로준비도검사', org:'고용24', cost:'무료', time:null,
+    one:'진로에 대한 태도와 최근 3개월 실제 준비 행동을 점검하는 검사',
+    detail:'전국 대학생 평균과 비교해 독립성·경험·계획성 중 어디가 부족한지 구체적으로 알려줘요.',
+    warn:'나에게 맞는 직업을 직접 추천해주지는 않아요.',
+    link:W24},
+  careerDev:{name:'진로개발준비도검사', org:'커리어넷', cost:'무료', time:'약 25분 (체감 10분 내외)',
+    one:'나의 진로 준비 수준을 전체 대학생과 비교해주는 검사',
+    detail:'자기이해·전공 및 직업 지식·진로결정 확신도 등 6개 영역을 진단하고, 결과마다 필요한 조언을 붙여줘요. 검사 후 진로상담 신청도 가능해요.',
+    link:'https://www.career.go.kr/cloud/w/inspect/ready/intro'},
+  jobSeek:{name:'구직준비도검사', org:'고용24', cost:'무료', time:'약 20분 (체감 10분 내외)',
+    one:'구직 기술부터 자존감까지 취업 준비 상태를 점검하는 검사',
+    detail:'자존감·구직 정보 수집 등 8개 하위 척도로 구직 동기와 준비 수준을 보고, 어떤 취업지원 서비스가 필요한지 알려줘요.',
+    warn:'마지막에 퇴직·이직 경험을 묻는 문항이 있어요.',
+    link:W24},
+  cti:{name:'CTI 진로사고검사', org:'한국가이던스', cost:'유료 15,000원', pay:true, time:'실제 약 15~20분 (안내 30분)',
+    one:'진로 결정을 가로막는 부정적인 생각을 찾아주는 검사',
+    detail:'의사결정 혼란·수행 불안·외적 갈등 3가지로 내가 왜 결정을 못 하는지 짚어줘요. 진로 결정 5단계 중 어디서 막혀 있는지도 알려줘서, 다음에 뭘 하면 될지 감이 와요.',
+    warn:'직업을 추천해주는 검사는 아니에요. 점수가 높을수록 부정적인 생각이 많다는 뜻이에요.',
+    link:'https://korea.guidance.co.kr/shop/product/H029Z'},
+  khai:{name:'KHAI-JC 취업전략검사', org:'한국인재평가연구소', cost:'유료 22,000원', pay:true, time:'실제 약 15~20분 (안내 30분)',
+    one:'내 역량을 희망 직무와 비교해 취업 전략까지 짜주는 검사',
+    detail:'개인·과업·관계 성향 역량을 점수와 등급으로 보여주고, 희망 직무가 요구하는 역량과 얼마나 차이 나는지 비교해줘요. 스펙 전략, 자소서·면접 전략, 액션플랜까지 보고서로 정리해줘요. 결과가 나온 뒤에는 내 결과를 바탕으로 AI 취업전략상담에서 궁금한 점을 더 물어볼 수 있어요.',
+    warn:'희망 직무를 정해두고 하면 결과를 훨씬 알차게 쓸 수 있어요.',
+    link:'https://job.khai.re.kr'},
+  mci:{name:'MCI 다면적진로탐색검사', org:'한국가이던스', cost:'유료 15,000원', pay:true, time:'실제 약 25분 (안내 45분)',
+    one:'흥미·능력·가치관을 교차 검증으로 꼼꼼하게 분석하는 검사',
+    detail:'같은 질문을 여러 번 다른 문항과 비교해 응답의 일관성을 확인하고, 진로 성숙도와 진로 코드, 추천 직무까지 알려줘요.',
+    link:'https://korea.guidance.co.kr/shop/product/H028J'}
+};
+
+/* ===================== 상담 질문 & 가중치 ===================== */
+const QS = [
+  {q:'요즘 진로 고민은 어느 쪽에 가까워?', opts:[
+    {t:'뭘 하고 싶은지부터 잘 모르겠어', s:{values:3,prefS:3,ai:2,mci:1}, r:'괜찮아, 다들 거기서 시작해 (｡•̀ᴗ-)✧'},
+    {t:'관심 분야는 있는데 나랑 맞는지 모르겠어', s:{prefL:3,apt:3,mci:2,prefS:1}, r:'방향이 있다는 것만으로도 반은 왔어! ٩(ˊᗜˋ*)و'},
+    {t:'방향은 정했는데 준비를 잘 하고 있는지 모르겠어', s:{careerDev:3,uniReady:3,khai:2,jobSeek:1}, r:'점검 타이밍이네. 좋아좋아 (๑•̀ㅂ•́)و✧'},
+    {t:'후보는 있는데 결정을 못 하겠어 (주변 의견이랑도 부딪혀)', s:{cti:5,values:1,mci:1}, r:'그거 진짜 머리 아픈 거 알아 (´・ω・`) 같이 풀어보자'},
+    {t:'곧 본격적으로 취업 준비를 시작해야 해', s:{jobSeek:3,khai:4,uniReady:2,careerDev:1,apt:1}, r:'실전 모드구나! 빠르게 가보자 ε=ε=┌( >_<)┘'}
+  ]},
+  {q:'지금 제일 궁금한 건 뭐야?', opts:[
+    {t:'내가 좋아하는 일 (흥미)', s:{prefS:3,ai:3,prefL:2,mci:1}, r:'흥미 쪽이구나, 메모해둘게 φ(..)'},
+    {t:'내가 잘하는 일 (능력·적성)', s:{apt:4,khai:2,mci:1,careerDev:1}, r:'강점 찾기! 재밌겠다 ✧*｡٩(ˊᗜˋ*)و✧*｡'},
+    {t:'내가 일에서 중요하게 여기는 것 (가치관)', s:{values:4,mci:1}, r:'기준부터 세우는 거, 현명해 (ˇ▽ˇ)b'},
+    {t:'내가 얼마나 준비됐는지 (준비도)', s:{careerDev:3,uniReady:3,jobSeek:2,khai:2,cti:1}, r:'현재 위치 확인부터 하자 ( •̀ᴗ•́ )ゞ'}
+  ]},
+  {q:'검사에 시간은 얼마나 쓸 수 있어?', opts:[
+    {t:'10~20분, 가볍게', s:{values:3,prefS:2,ai:2,jobSeek:2,careerDev:2,cti:2,prefL:-3,apt:-4}, r:'짧고 굵게, 접수 완료 (`･ω･´)ゞ'},
+    {t:'30분 정도는 괜찮아', s:{prefS:2,careerDev:2,uniReady:2,mci:2,cti:2,khai:2,jobSeek:1,apt:-2}, r:'딱 적당해 (ᐢ˘ᵕ˘ᐢ)'},
+    {t:'1시간 이상, 각 잡고 제대로', s:{prefL:3,apt:3,mci:1}, r:'오, 진심이구나. 멋져 Σ(°ロ°)!!'}
+  ]},
+  {q:'결과는 어떤 스타일이 좋아?', opts:[
+    {t:'나한테 맞는 직업 추천 리스트', s:{prefS:2,ai:2,apt:2,values:1,prefL:1}, r:'추천 많이 해주는 걸로 골라볼게 ฅ^•ﻌ•^ฅ'},
+    {t:'내가 부족한 점이랑 앞으로 할 일', s:{careerDev:3,uniReady:3,jobSeek:2,cti:2,khai:3}, r:'할 일 목록파구나 ㅎㅎ ( ˘ ³˘)♥'},
+    {t:'꼼꼼한 분석 리포트 (유료도 괜찮아)', s:{mci:4,khai:3,prefL:2,apt:1,cti:2}, r:'깊게 파는 걸로 찾아볼게 (￣^￣ゞ'}
+  ]}
+];
+
+
+/* ===== messenger engine ===== */
+const log = document.getElementById('log');
+const box = document.getElementById('box');
+const sendBtn = document.getElementById('send');
+const stTxt = document.getElementById('stTxt');
+const wait = ms => new Promise(r=>setTimeout(r,ms));
+let nick='학우', score={}, runId=0;
+const CAT='[상담사] 서냥이';
+function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function scrollEnd(){ log.scrollTop = log.scrollHeight; }
+function addLine(who, html){
+  const d=document.createElement('div'); d.className='line '+who;
+  d.innerHTML=`<div class="nm">${who==='cat'?CAT:esc(nick)} 님의 말:</div><div class="tx">${html}</div>`;
+  log.appendChild(d); scrollEnd(); return d;
+}
+async function say(html,id){
+  const t=document.createElement('div'); t.className='typing'; t.textContent=`${CAT} 님이 메시지를 입력하고 있습니다...`;
+  log.appendChild(t); scrollEnd(); stTxt.textContent='메시지 받는 중...';
+  await wait(Math.min(1500, 450 + html.replace(/<[^>]+>/g,'').length*16));
+  t.remove(); stTxt.textContent='완료';
+  if(id!==runId) return false;
+  addLine('cat',html); return true;
+}
+function clearBox(ph){ box.innerHTML = ph?`<div class="ph">${ph}</div>`:''; sendBtn.disabled=true; sendBtn.onclick=null; }
+
+function choose(list){
+  return new Promise(res=>{
+    box.innerHTML=''; let picked=null;
+    const send=()=>{ if(!picked) return; clearBox('서냥이의 답장을 기다리는 중...'); res(picked); };
+    list.forEach((o,i)=>{
+      const b=document.createElement('button'); b.type='button'; b.className='opt'; b.setAttribute('role','option'); b.setAttribute('aria-selected','false');
+      b.textContent=`${i+1}. ${o.t}`;
+      b.onclick=()=>{ box.querySelectorAll('.opt').forEach(x=>x.setAttribute('aria-selected','false')); b.setAttribute('aria-selected','true'); picked=o; sendBtn.disabled=false; };
+      b.ondblclick=()=>{ b.onclick(); send(); };
+      box.appendChild(b);
+    });
+    sendBtn.onclick=send;
+    requestAnimationFrame(scrollEnd);
+  });
+}
+function askName(){
+  return new Promise(res=>{
+    box.innerHTML='<input maxlength="12" placeholder="여기에 닉네임 입력 (비워두면 학우)" aria-label="닉네임">';
+    const inp=box.querySelector('input');
+    const send=()=>{ const v=inp.value.trim()||'학우'; clearBox('서냥이의 답장을 기다리는 중...'); res(v); };
+    sendBtn.disabled=false; sendBtn.onclick=send;
+    inp.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); send(); } };
+    setTimeout(()=>inp.focus({preventScroll:true}),50);
+  });
+}
+function card(key,rank){
+  const t=TESTS[key];
+  const tags=[`<span class="tag">${t.org}</span>`,`<span class="tag${t.pay?' pay':''}">${t.cost}</span>`,`<span class="tag">${t.time||'소요시간은 사이트에서 확인'}</span>`];
+  if(t.pick) tags.push('<span class="tag pick">정책기획국 추천</span>');
+  return `<div class="rx"><div class="rank">${rank}</div><h4>${t.name}</h4><div class="tags">${tags.join('')}</div>
+    <p><b>${t.one}</b></p><p class="why">${t.detail}</p>${t.warn?`<p class="warn">※ ${t.warn}</p>`:''}
+    ${t.link?`<a href="${t.link}" target="_blank" rel="noopener">▶ 검사하러 가기</a>`:'<span style="color:#666">▶ 검사 링크 준비 중</span>'}</div>`;
+}
+
+async function run(){
+  const id=++runId;
+  log.innerHTML=''; score={}; Object.keys(TESTS).forEach(k=>score[k]=0); clearBox();
+  const d=new Date();
+  log.insertAdjacentHTML('beforeend',`<div class="stamp">${CAT} 님이 대화에 참여했습니다. (${d.getMonth()+1}월 ${d.getDate()}일 ${d.getHours()<12?'오전':'오후'} ${((d.getHours()+11)%12)+1}:${String(d.getMinutes()).padStart(2,'0')})</div>`);
+  if(!await say('안녕~ 나는 IN-S!GHT 진로상담소 상담사 서냥이야 =^ㅅ^= ฅ(ミ⚈ ﻌ ⚈ミ)ฅ',id)) return;
+  if(!await say('질문 몇 개만 답해주면, 정책기획국이 직접 해보고 고른 진로 적성 검사 중에서 딱 맞는 걸 골라줄게! (๑˃ᴗ˂)ﻭ',id)) return;
+  if(!await say('먼저 뭐라고 부르면 될까?? 아래 칸에 닉네임 쓰고 [보내기] 눌러줘 (・ω・)ノ',id)) return;
+  nick=await askName(); if(id!==runId) return;
+  addLine('me', esc(nick)+'(이)라고 불러줘~');
+  if(!await say(`ㅎㅇㅎㅇ ${esc(nick)}! 그럼 시작한다~ 답장 고르고 [보내기]! ヾ(＾∇＾)`,id)) return;
+  for(let i=0;i<QS.length;i++){
+    const Q=QS[i];
+    if(!await say(`Q${i+1}. ${Q.q}`,id)) return;
+    const o=await choose(Q.opts); if(id!==runId) return;
+    addLine('me',esc(o.t));
+    for(const k in o.s) score[k]+=o.s[k];
+    if(!await say(o.r,id)) return;
+  }
+  if(!await say('잠깐만... 상담 차트 정리 중 φ(°ρ°*)... (ㆆ_ㆆ)',id)) return;
+  await wait(700); if(id!==runId) return;
+  const [a,b,c]=Object.keys(score).sort((x,y)=>score[y]-score[x]);
+  if(!await say(`${esc(nick)}한테 딱 맞는 처방전 나왔어!! ☆*:.｡.o(≧▽≦)o.｡.:*☆`,id)) return;
+  const res=document.createElement('div');
+  res.innerHTML=card(a,'★ 오늘의 처방')+card(b,'+ 같이 해보면 좋은 검사')+card(c,'+ 여유 있으면 이것도');
+  log.appendChild(res); scrollEnd();
+  if(!await say('검사는 정답을 알려주는 게 아니라 나를 들여다보는 도구야. 결과 나오면 학교 경력개발센터나 검사 사이트 상담으로 이어가 봐~ (｡•ᴗ•｡)♡',id)) return;
+  if(!await say('이 화면 캡처해서 스토리에 올리고 서양어대학 학생회 계정 태그해줘도 좋아 ㅎㅎ ₍₍ ฅ(ᐢ. .ᐢ)ฅ ₎₎',id)) return;
+  const after=document.createElement('div'); after.className='after';
+  after.innerHTML='<button class="btn" type="button" id="again">↻ 다시 상담하기</button><button class="btn" type="button" id="seeAll">전체 검사 목록 보기</button>';
+  log.appendChild(after); scrollEnd();
+  after.querySelector('#again').onclick=()=>run();
+  after.querySelector('#seeAll').onclick=()=>openWin('list');
+  clearBox('상담이 끝났어. 위에서 다시 상담할 수 있어!');
+}
+
+/* list */
+document.getElementById('listBody').innerHTML = `<p style="margin:0 0 8px"><b>[IN-S!GHT] 진로 적성 검사 큐레이션</b><br><span style="font-size:11.5px">서양어대학 학생회 SPARK 정책기획국이 직접 해보고 정리했어요.</span></p>` +
+  Object.values(TESTS).map(t=>`<div class="row"><b>${t.name}</b>${t.pick?' <span class="tag pick">정책기획국 추천</span>':''}
+   <div class="meta">${t.org} · ${t.cost} · ${t.time||'소요시간 사이트 확인'}</div><div>${t.one}</div>
+   ${t.link?`<a href="${t.link}" target="_blank" rel="noopener" style="font-size:12px;color:#0000ee">▶ 검사하러 가기</a>`:'<span style="font-size:12px;color:#666">▶ 검사 링크 준비 중</span>'}</div>`).join('');
+
+/* windows */
+const tb=document.getElementById('tb'); const titles={chat:'서냥이 웹메신저',list:'검사목록.txt'};
+let started=false;
+function openWin(k){document.getElementById(k).hidden=false;renderTb();}
+function closeWin(k){document.getElementById(k).hidden=true;renderTb();}
+function renderTb(){
+  tb.innerHTML='';
+  ['chat','list'].forEach(k=>{
+    const w=document.getElementById(k);
+    if((k==='chat'&&!started)||(k==='list'&&w.hidden)) return;
+    const b=document.createElement('button');b.type='button';b.className='btn'+(w.hidden?'':' on');b.textContent=titles[k];
+    b.onclick=()=>w.hidden?openWin(k):closeWin(k); tb.appendChild(b);
+  });
+}
+document.querySelectorAll('[data-min]').forEach(b=>b.onclick=()=>closeWin(b.dataset.min));
+document.getElementById('restartX').onclick=()=>run();
+document.getElementById('openList').onclick=()=>openWin('list');
+document.getElementById('closeList').onclick=()=>closeWin('list');
+document.getElementById('iconList').onclick=()=>openWin('list');
+document.getElementById('iconChat').onclick=()=>{ if(started) openWin('chat'); };
+document.getElementById('startBtn').onclick=()=>{ if(started){openWin('chat');run();} };
+function tick(){const d=new Date();document.getElementById('clock').textContent=`${d.getHours()<12?'오전':'오후'} ${((d.getHours()+11)%12)+1}:${String(d.getMinutes()).padStart(2,'0')}`;}
+tick(); setInterval(tick,15000);
+
+(async()=>{
+  const prog=document.getElementById('prog'), msg=document.getElementById('bootMsg');
+  const steps=['서버에 연결하는 중','친구 목록 불러오는 중','상담실 문 여는 중','서냥이 온라인!'];
+  const total=Math.floor((prog.clientWidth-8)/12);
+  for(let i=0;i<total;i++){ prog.insertAdjacentHTML('beforeend','<i></i>'); msg.textContent=steps[Math.min(3,Math.floor(i/total*4))]; await wait(55); }
+  await wait(250);
+  document.getElementById('boot').hidden=true; started=true; openWin('chat'); run();
+})();
+</script>
+</body>
+</html>
