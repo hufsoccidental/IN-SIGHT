@@ -149,6 +149,13 @@
   .slide .warn{font-size:11.5px;color:#8a2a00;margin:0 0 12px}
   .slide .why:last-of-type{margin-bottom:12px}
   .slide a.btn{align-self:flex-start;margin-top:auto;text-decoration:none;font-weight:700;padding:6px 12px}
+  .rxcar{margin:4px 0 16px 12px;background:#f3f1ea;border:1px solid #9a9a9a}
+  .rxcar .slides{margin:0;padding:8px;gap:8px;scroll-padding:8px}
+  .rxcar .slide{flex-basis:88%;font-size:12.5px;padding:10px 11px 12px}
+  .rxcar .slide h4{font-size:15px}
+  .rxcar .lnav{padding:2px 6px 6px}
+  .rxcar .lnav .btn{padding:2px 12px}
+  .rxcar .no{font-family:var(--kr);font-size:13px;font-weight:700}
   .lnav{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:4px 6px 6px;flex:none}
   .lnav .cnt{font-family:var(--px);font-size:18px;padding:0 12px;border:1px solid;border-color:var(--lo) var(--hi) var(--hi) var(--lo);background:#fff}
   .menu{display:flex;gap:12px;padding:3px 8px;flex:none}
@@ -388,13 +395,22 @@ function askName(){
     setTimeout(()=>inp.focus({preventScroll:true}),50);
   });
 }
-function card(key,rank){
-  const t=TESTS[key];
+function slideHTML(t,label){
   const tags=[`<span class="tag">${t.org}</span>`,`<span class="tag${t.pay?' pay':''}">${t.cost}</span>`,`<span class="tag">${t.time||'소요시간은 사이트에서 확인'}</span>`];
   if(t.pick) tags.push('<span class="tag pick">정책기획국 추천</span>');
-  return `<div class="rx"><div class="rank">${rank}</div><h4>${t.name}</h4><div class="tags">${tags.join('')}</div>
-    <p><b>${t.one}</b></p><p class="why">${t.detail}</p>${t.warn?`<p class="warn">※ ${t.warn}</p>`:''}
-    ${t.link?`<a href="${t.link}" target="_blank" rel="noopener">▶ 검사하러 가기</a>`:'<span style="color:#666">▶ 검사 링크 준비 중</span>'}</div>`;
+  return `<article class="slide"><div class="no">${label}</div><h4>${t.name}</h4>
+    <div class="tags">${tags.join('')}</div><p class="one">${t.one}</p><p class="why">${t.detail}</p>${t.warn?`<p class="warn">※ ${t.warn}</p>`:''}
+    ${t.link?`<a class="btn" href="${t.link}" target="_blank" rel="noopener">▶ 검사하러 가기</a>`:'<span style="color:#666">▶ 검사 링크 준비 중</span>'}</article>`;
+}
+function bindCarousel(sl,prev,next,cnt){
+  const n=()=>sl.children.length;
+  const cur=()=>{ const f=sl.children[0]; if(!f) return 0; const w=f.offsetWidth+10; return Math.max(0,Math.min(n()-1,Math.round(sl.scrollLeft/w))); };
+  const upd=()=>{ const i=cur(); const end=sl.scrollLeft+sl.clientWidth>=sl.scrollWidth-4; cnt.textContent=`${end?n():i+1} / ${n()}`; prev.disabled=sl.scrollLeft<4; next.disabled=end; };
+  const go=d=>{ const i=Math.max(0,Math.min(n()-1,cur()+d)); const s=sl.children[i]; sl.scrollTo({left:s.offsetLeft-sl.children[0].offsetLeft,behavior:'smooth'}); };
+  sl.addEventListener('scroll',()=>requestAnimationFrame(upd),{passive:true});
+  prev.onclick=()=>go(-1); next.onclick=()=>go(1);
+  requestAnimationFrame(upd);
+  return upd;
 }
 
 async function run(){
@@ -420,9 +436,13 @@ async function run(){
   await wait(700); if(id!==runId) return;
   const [a,b,c]=Object.keys(score).sort((x,y)=>score[y]-score[x]);
   if(!await say(`${esc(nick)}한테 딱 맞는 처방전 나왔어!! ☆*:.｡.o(≧▽≦)o.｡.:*☆`,id)) return;
-  const res=document.createElement('div');
-  res.innerHTML=card(a,'★ 오늘의 처방')+card(b,'+ 같이 해보면 좋은 검사')+card(c,'+ 여유 있으면 이것도');
-  log.appendChild(res); scrollEnd();
+  const res=document.createElement('div'); res.className='rxcar';
+  res.innerHTML=`<div class="slides">${slideHTML(TESTS[a],'★ 오늘의 처방')+slideHTML(TESTS[b],'+ 같이 해보면 좋은 검사')+slideHTML(TESTS[c],'+ 여유 있으면 이것도')}</div>
+    <div class="lnav"><button class="btn" type="button">◀</button><span class="cnt">1 / 3</span><button class="btn" type="button">▶</button></div>`;
+  log.appendChild(res);
+  const [pb,nb]=res.querySelectorAll('.lnav .btn');
+  bindCarousel(res.querySelector('.slides'),pb,nb,res.querySelector('.cnt'));
+  scrollEnd();
   if(!await say('검사는 정답을 알려주는 게 아니라 나를 들여다보는 도구야. 결과 나오면 학교 경력개발센터나 검사 사이트 상담으로 이어가 봐~ (｡•ᴗ•｡)♡',id)) return;
   if(!await say('이 화면 캡처해서 스토리에 올리고 서양어대학 학생회 계정 태그해줘도 좋아 ㅎㅎ ₍₍ ฅ(ᐢ. .ᐢ)ฅ ₎₎',id)) return;
   const after=document.createElement('div'); after.className='after';
@@ -435,21 +455,8 @@ async function run(){
 
 /* list */
 const slides=document.getElementById('listBody');
-const ALL=Object.values(TESTS);
-slides.innerHTML = ALL.map((t,i)=>{
-  const tags=[`<span class="tag">${t.org}</span>`,`<span class="tag${t.pay?' pay':''}">${t.cost}</span>`,`<span class="tag">${t.time||'소요시간은 사이트에서 확인'}</span>`];
-  if(t.pick) tags.push('<span class="tag pick">정책기획국 추천</span>');
-  return `<article class="slide" aria-label="${i+1}번째 검사"><div class="no">No.${String(i+1).padStart(2,'0')}</div><h4>${t.name}</h4>
-    <div class="tags">${tags.join('')}</div><p class="one">${t.one}</p><p class="why">${t.detail}</p>${t.warn?`<p class="warn">※ ${t.warn}</p>`:''}
-    ${t.link?`<a class="btn" href="${t.link}" target="_blank" rel="noopener">▶ 검사하러 가기</a>`:'<span style="color:#666">▶ 검사 링크 준비 중</span>'}</article>`;
-}).join('');
-const cntS=document.getElementById('cntS');
-function curS(){ const w=slides.querySelector('.slide').offsetWidth+10; return Math.min(ALL.length-1,Math.round(slides.scrollLeft/w)); }
-function updS(){ const i=curS(); cntS.textContent=`${i+1} / ${ALL.length}`; document.getElementById('prevS').disabled=i===0; document.getElementById('nextS').disabled=i>=ALL.length-1 || slides.scrollLeft+slides.clientWidth>=slides.scrollWidth-4; }
-function goS(d){ const s=slides.querySelectorAll('.slide')[Math.max(0,Math.min(ALL.length-1,curS()+d))]; slides.scrollTo({left:s.offsetLeft-slides.offsetLeft-10,behavior:'smooth'}); }
-slides.addEventListener('scroll',()=>requestAnimationFrame(updS),{passive:true});
-document.getElementById('prevS').onclick=()=>goS(-1);
-document.getElementById('nextS').onclick=()=>goS(1);
+slides.innerHTML = Object.values(TESTS).map((x,i)=>slideHTML(x,'No.'+String(i+1).padStart(2,'0'))).join('');
+const updS=bindCarousel(slides,document.getElementById('prevS'),document.getElementById('nextS'),document.getElementById('cntS'));
 
 /* windows */
 const tb=document.getElementById('tb'); const titles={chat:'서냥이 웹메신저',list:'검사목록.txt'};
