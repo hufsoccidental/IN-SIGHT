@@ -83,8 +83,9 @@
   .log::-webkit-scrollbar-track{background:repeating-conic-gradient(#d4d0c8 0 25%,#fff 0 50%) 0 0/2px 2px}
   .log::-webkit-scrollbar-thumb{background:var(--face);border:2px solid;border-color:var(--hi) var(--dk) var(--dk) var(--hi)}
   .stamp{color:var(--lo);margin:0 0 6px}
-  .line{margin:0 0 4px}
-  .line .nm{color:#222}
+  .line{margin:0 0 14px}
+  .line.me{margin-bottom:16px}
+  .line .nm{color:#222;margin-bottom:2px}
   .line .tx{padding-left:12px;white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere}
   .line.cat .tx{color:var(--catc)}
   .line.me .tx{color:var(--mec)}
@@ -130,11 +131,26 @@
   .after{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 4px 12px}
 
   /* list window */
-  #list{left:50%;top:50%;transform:translate(-50%,-50%);width:min(520px,96vw);height:min(640px,calc(100dvh - 56px));z-index:8}
-  #list .log{margin:4px;font-size:12.5px}
-  .row{padding:7px 3px;border-bottom:1px dotted var(--lo)}
-  .row b{font-size:13.5px}
-  .row .meta{font-size:11.5px;color:#444}
+  #list{left:50%;top:50%;transform:translate(-50%,-50%);width:min(520px,96vw);height:auto;max-height:calc(100dvh - 56px);z-index:8}
+  .lhead{padding:6px 10px 4px;line-height:1.45;flex:none}
+  .lhead b{font-size:13.5px}
+  .lhead small{display:block;font-size:11.5px;color:#333}
+  .slides{flex:0 1 auto;min-height:0;margin:4px 6px;display:flex;gap:10px;overflow-x:auto;overflow-y:hidden;
+    scroll-snap-type:x mandatory;padding:10px;align-items:stretch;scroll-padding:10px;overscroll-behavior-x:contain}
+  .slides::-webkit-scrollbar{height:16px}
+  .slides::-webkit-scrollbar-track{background:repeating-conic-gradient(#d4d0c8 0 25%,#fff 0 50%) 0 0/2px 2px}
+  .slides::-webkit-scrollbar-thumb{background:var(--face);border:2px solid;border-color:var(--hi) var(--dk) var(--dk) var(--hi)}
+  .slide{flex:0 0 86%;max-width:340px;scroll-snap-align:start;display:flex;flex-direction:column;overflow-y:auto;max-height:100%;
+    background:#fffef2;border:1px solid #9a9a9a;box-shadow:3px 3px 0 #c9c9c9;padding:14px 14px 16px;line-height:1.65;font-size:13.5px}
+  .slide .no{font-family:var(--px);font-size:18px;color:var(--catc)}
+  .slide h4{margin:2px 0 8px;font-size:17px;line-height:1.35}
+  .slide .one{font-weight:700;margin:8px 0 6px}
+  .slide .why{color:#333;margin:0 0 6px}
+  .slide .warn{font-size:11.5px;color:#8a2a00;margin:0 0 12px}
+  .slide .why:last-of-type{margin-bottom:12px}
+  .slide a.btn{align-self:flex-start;margin-top:auto;text-decoration:none;font-weight:700;padding:6px 12px}
+  .lnav{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:4px 6px 6px;flex:none}
+  .lnav .cnt{font-family:var(--px);font-size:18px;padding:0 12px;border:1px solid;border-color:var(--lo) var(--hi) var(--hi) var(--lo);background:#fff}
   .menu{display:flex;gap:12px;padding:3px 8px;flex:none}
   .menu u{text-decoration:underline}
 
@@ -150,6 +166,7 @@
   @media (max-width:560px){
     .icons{display:none}
     #chat,#list{top:4px;left:1.5vw;transform:none;width:97vw;height:calc(100dvh - 44px)}
+    #list{top:50%;transform:translateY(-50%);height:auto;max-height:calc(100dvh - 44px)}
     .main{grid-template-columns:1fr 84px;gap:5px;padding:5px}
     .logo,.tools .btn{display:none}
     .fmt .hide-s{display:none}
@@ -221,7 +238,9 @@
 <section class="win" id="list" hidden aria-label="전체 검사 목록">
   <div class="bar"><span class="mini" id="folderMini" style="background:none;border:0"></span><span class="t">검사목록.txt - 메모장</span><span class="ctl"><button type="button" aria-label="닫기" id="closeList">×</button></span></div>
   <div class="menu"><span><u>파</u>일</span><span><u>편</u>집</span><span><u>서</u>식</span></div>
-  <div class="log sunken" id="listBody"></div>
+  <div class="lhead"><b>[IN-S!GHT] 진로 적성 검사 큐레이션</b><small>서양어대학 학생회 SPARK 정책기획국이 직접 해보고 정리했어요. 옆으로 넘겨서 봐!</small></div>
+  <div class="slides sunken" id="listBody"></div>
+  <div class="lnav"><button class="btn" type="button" id="prevS">◀ 이전</button><span class="cnt" id="cntS">1 / 1</span><button class="btn" type="button" id="nextS">다음 ▶</button></div>
 </section>
 
 <div class="task">
@@ -415,15 +434,27 @@ async function run(){
 }
 
 /* list */
-document.getElementById('listBody').innerHTML = `<p style="margin:0 0 8px"><b>[IN-S!GHT] 진로 적성 검사 큐레이션</b><br><span style="font-size:11.5px">서양어대학 학생회 SPARK 정책기획국이 직접 해보고 정리했어요.</span></p>` +
-  Object.values(TESTS).map(t=>`<div class="row"><b>${t.name}</b>${t.pick?' <span class="tag pick">정책기획국 추천</span>':''}
-   <div class="meta">${t.org} · ${t.cost} · ${t.time||'소요시간 사이트 확인'}</div><div>${t.one}</div>
-   ${t.link?`<a href="${t.link}" target="_blank" rel="noopener" style="font-size:12px;color:#0000ee">▶ 검사하러 가기</a>`:'<span style="font-size:12px;color:#666">▶ 검사 링크 준비 중</span>'}</div>`).join('');
+const slides=document.getElementById('listBody');
+const ALL=Object.values(TESTS);
+slides.innerHTML = ALL.map((t,i)=>{
+  const tags=[`<span class="tag">${t.org}</span>`,`<span class="tag${t.pay?' pay':''}">${t.cost}</span>`,`<span class="tag">${t.time||'소요시간은 사이트에서 확인'}</span>`];
+  if(t.pick) tags.push('<span class="tag pick">정책기획국 추천</span>');
+  return `<article class="slide" aria-label="${i+1}번째 검사"><div class="no">No.${String(i+1).padStart(2,'0')}</div><h4>${t.name}</h4>
+    <div class="tags">${tags.join('')}</div><p class="one">${t.one}</p><p class="why">${t.detail}</p>${t.warn?`<p class="warn">※ ${t.warn}</p>`:''}
+    ${t.link?`<a class="btn" href="${t.link}" target="_blank" rel="noopener">▶ 검사하러 가기</a>`:'<span style="color:#666">▶ 검사 링크 준비 중</span>'}</article>`;
+}).join('');
+const cntS=document.getElementById('cntS');
+function curS(){ const w=slides.querySelector('.slide').offsetWidth+10; return Math.min(ALL.length-1,Math.round(slides.scrollLeft/w)); }
+function updS(){ const i=curS(); cntS.textContent=`${i+1} / ${ALL.length}`; document.getElementById('prevS').disabled=i===0; document.getElementById('nextS').disabled=i>=ALL.length-1 || slides.scrollLeft+slides.clientWidth>=slides.scrollWidth-4; }
+function goS(d){ const s=slides.querySelectorAll('.slide')[Math.max(0,Math.min(ALL.length-1,curS()+d))]; slides.scrollTo({left:s.offsetLeft-slides.offsetLeft-10,behavior:'smooth'}); }
+slides.addEventListener('scroll',()=>requestAnimationFrame(updS),{passive:true});
+document.getElementById('prevS').onclick=()=>goS(-1);
+document.getElementById('nextS').onclick=()=>goS(1);
 
 /* windows */
 const tb=document.getElementById('tb'); const titles={chat:'서냥이 웹메신저',list:'검사목록.txt'};
 let started=false;
-function openWin(k){document.getElementById(k).hidden=false;renderTb();}
+function openWin(k){document.getElementById(k).hidden=false;renderTb(); if(k==='list') requestAnimationFrame(updS);}
 function closeWin(k){document.getElementById(k).hidden=true;renderTb();}
 function renderTb(){
   tb.innerHTML='';
